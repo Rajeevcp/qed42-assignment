@@ -17,7 +17,9 @@ use Drupal\Core\Entity\Entity\EntityViewDisplay;
 function client_url_install($is_syncing) {
     $entity_type_definations = \Drupal::entityTypeManager()->getDefinitions();
     $file = file('modules/custom/client_url/source/domain.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
+    foreach($file as $value) {
+      $domain[] = ['url' => $value];
+    }
     /* @var $definition EntityTypeInterface */
     foreach ($entity_type_definations as $definition) {
       if ($definition instanceof ContentEntityType) {
@@ -28,7 +30,6 @@ function client_url_install($is_syncing) {
             'entity_type' => $content_entity_id, 
             'type' => 'client_url',
             'cardinality' => count($file),
-            'default_value' => $file
             ))->save();
         foreach($bundle as $key => $values) {
             FieldConfig::create([
@@ -36,6 +37,7 @@ function client_url_install($is_syncing) {
                 'entity_type' => $content_entity_id,
                 'bundle' => $key, // content type
                 'label' => 'Url field',
+                'default_value' => $domain
                 ])->save();
             // Manage form display
             $form_display = \Drupal::service('entity_display.repository')->getFormDisplay($content_entity_id, $key );
